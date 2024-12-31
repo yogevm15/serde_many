@@ -1,0 +1,24 @@
+[package]
+name = "serde_many"
+version = "0.1.0"
+edition = "2021"
+categories = ["encoding", "no-std", "no-std::no-alloc"]
+keywords = ["serde", "serialization", "no_std"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/yogevm15/serde_many"
+authors = ["Maayan Yogev <yogevm15@gmail.com>"]
+
+[workspace]
+members = ["derive"]
+
+[features]
+derive = ["dep:serde_many_derive", "serde/derive"]
+
+[dependencies]
+serde = { version = "1.0", default-features = false }
+serde_many_derive = { path = "derive", optional = true }
+
+
+[dev-dependencies]
+serde_json = "1.0"

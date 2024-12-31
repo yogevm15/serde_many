@@ -1,0 +1,5 @@
+# Project exclude paths
+/target/
+.idea
+Cargo.lock
+serde_many.iml
