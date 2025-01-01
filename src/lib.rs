@@ -6,26 +6,26 @@
 //!
 //! # Design
 //!
-//! The core design of this crate revolves around the [`SerializeMany`] and [`DeserializeMany`] traits.
-//! These traits are similar to the [serde] [`Serialize`] and [`Deserialize`] traits,
+//! The core design of this crate revolves around the `SerializeMany` and `DeserializeMany` traits.
+//! These traits are similar to serde's `Serialize` and `Deserialize` traits,
 //! but are generic over a marker type, allowing multiple implementations for different markers.
 //!
-//! To ensure seamless integration with [serde], any type that implements [serde]'s
-//! [`Serialize`] and [`Deserialize`] automatically implements
-//! [`SerializeMany`] and [`DeserializeMany`] for all markers. This means that types which
-//! manually implement [`SerializeMany`] and [`DeserializeMany`] cannot also implement
-//! [serde]'s [`Serialize`] and [`Deserialize`].
+//! To ensure seamless integration with serde, any type that implements serde's
+//! `Serialize` and `Deserialize` automatically implements
+//! `SerializeMany` and `DeserializeMany` for all markers. This means that types which
+//! manually implement `SerializeMany` and `DeserializeMany` cannot also implement
+//! serde's `Serialize` and `Deserialize`.
 //!
 //! # Derive
 //!
 //! Implementing serialization and deserialization by hand can be tedious. To simplify this process,
-//! this crate (with the `derive` feature) provides derive macros to automatically generate implementations
-//! of the [`SerializeMany`] and [`DeserializeMany`] traits.
+//! this crate (with the "derive" feature) provides derive macros to automatically generate implementations
+//! of the `SerializeMany` and `DeserializeMany` traits.
 //!
-//! The derive macros use the actual [serde] derive macros under the hood, meaning all of
-//! [serde]'s attributes are supported.
+//! The derive macros use the actual serde derive macros under the hood, meaning all of
+//! serde's attributes are supported.
 //!
-//! # Example
+//! ## Example
 //! ```
 //! use serde_many::{DeserializeMany, SerializeMany};
 //!
