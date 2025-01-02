@@ -9,6 +9,10 @@ use syn::{
     Result, Variant,
 };
 
+pub struct Input<'a> {
+    pub data: Vec<SerdeImp<'a>>,
+}
+
 pub struct SerdeImp<'a> {
     pub marker: Path,
     pub derive: Derive,
@@ -16,19 +20,15 @@ pub struct SerdeImp<'a> {
     pub data: DeriveInput,
 }
 
-pub struct Input<'a> {
-    pub data: Vec<SerdeImp<'a>>,
-}
-
 impl<'a> Input<'a> {
     pub fn from_syn(i: &'a DeriveInput, derive: Derive) -> Result<Self> {
-        let ManyAttrs { many } = ManyAttrs::from_syn(&i.attrs)?;
-        Ok(Self {
-            data: many
-                .into_iter()
-                .map(|(name, marker)| SerdeImp::from_syn(name, marker, i, derive))
-                .collect::<Result<_>>()?,
-        })
+        let data = ManyAttrs::from_syn(&i.attrs)?
+            .many
+            .into_iter()
+            .map(|(name, marker)| SerdeImp::from_syn(name, marker, i, derive))
+            .collect::<Result<_>>()?;
+
+        Ok(Self { data })
     }
 }
 
