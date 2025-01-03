@@ -8,6 +8,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/yogevm15/serde_many"
 authors = ["Maayan Yogev <yogevm15@gmail.com>"]
+description = "Multiple serialization/deserialization implementations for the same type."
 
 [workspace]
 members = ["derive"]
@@ -17,7 +18,7 @@ derive = ["dep:serde_many_derive", "serde/derive"]
 
 [dependencies]
 serde = { version = "1.0", default-features = false }
-serde_many_derive = { path = "derive", optional = true }
+serde_many_derive = { path = "derive", version = "0.1.0", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"

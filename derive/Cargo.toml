@@ -2,6 +2,13 @@
 name = "serde_many_derive"
 version = "0.1.0"
 edition = "2021"
+categories = ["encoding", "no-std", "no-std::no-alloc"]
+keywords = ["serde", "serialization", "no_std", "derive"]
+license = "MIT OR Apache-2.0"
+readme = "../README.md"
+repository = "https://github.com/yogevm15/serde_many"
+authors = ["Maayan Yogev <yogevm15@gmail.com>"]
+description = "Macros implementation of #[derive(SerializeMany, DeserializeMany)]"
 
 [lib]
 proc-macro = true
