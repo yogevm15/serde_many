@@ -15,12 +15,16 @@ enum Derive {
 pub fn derive_serialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    expand::derive_serde(input, Derive::Serialize).unwrap_or_else(|e| e.to_compile_error().into())
+    expand::derive_serde(input, Derive::Serialize)
+        .unwrap_or_else(|e| e.to_compile_error())
+        .into()
 }
 
 #[proc_macro_derive(DeserializeMany, attributes(serde_many, serde))]
 pub fn derive_deserialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    expand::derive_serde(input, Derive::Deserialize).unwrap_or_else(|e| e.to_compile_error().into())
+    expand::derive_serde(input, Derive::Deserialize)
+        .unwrap_or_else(|e| e.to_compile_error())
+        .into()
 }

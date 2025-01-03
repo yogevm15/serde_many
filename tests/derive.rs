@@ -1,3 +1,4 @@
+#![cfg(feature = "derive")]
 use serde_many::{DeserializeMany, SerializeMany};
 
 /// Marker for the default serde implementation.
@@ -11,7 +12,7 @@ struct Special;
 struct Point {
     #[serde(special(rename = "x_value"))]
     x: i32,
-    #[serde(special(rename = "y_value"))]
+    #[serde(special(rename = "y_value"), default(rename = "y2"))]
     y: i32,
 }
 
@@ -26,7 +27,7 @@ fn it_works() {
         String::from_utf8_lossy(&serialized),
         "{
   \"x\": 0,
-  \"y\": 0
+  \"y2\": 0
 }"
     );
 

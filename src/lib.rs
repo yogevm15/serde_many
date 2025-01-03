@@ -35,6 +35,7 @@
 //! /// Marker for a special serde implementation.
 //! struct Special;
 //!
+//! # #[cfg(feature = "derive")]
 //! #[derive(SerializeMany, DeserializeMany)]
 //! #[serde_many(default = "Default", special = "Special")] // Declaring the implementation markers.
 //! struct Point {
@@ -51,6 +52,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 mod adapter;
 
 #[cfg(feature = "derive")]
+#[cfg_attr(docsrs, doc(cfg(feature = "derive")))]
 pub use serde_many_derive::{DeserializeMany, SerializeMany};
 
 /// A trait for serializing a value with a specific marker type.

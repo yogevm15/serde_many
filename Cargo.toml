@@ -19,6 +19,7 @@ derive = ["dep:serde_many_derive", "serde/derive"]
 serde = { version = "1.0", default-features = false }
 serde_many_derive = { path = "derive", optional = true }
 
-
 [dev-dependencies]
 serde_json = "1.0"
+rustversion = "1.0"
+trybuild = "1.0"

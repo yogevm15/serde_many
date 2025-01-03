@@ -1,23 +1,22 @@
 use crate::ast::{Input, SerdeImp};
 use crate::Derive;
-use proc_macro::TokenStream;
+use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{parse_quote, DeriveInput, Generics, Result};
 
 pub fn derive_serde(input: DeriveInput, derive: Derive) -> Result<TokenStream> {
     let input = Input::from_syn(&input, derive)?;
-
     let imps = input.data;
+
     Ok(quote! {
         const _: () = {
             #(#imps)*
         };
-    }
-    .into())
+    })
 }
 
 impl ToTokens for SerdeImp<'_> {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let imp = if let Derive::Serialize = self.derive {
             self.serialize_imp()
         } else {
@@ -29,7 +28,7 @@ impl ToTokens for SerdeImp<'_> {
 }
 
 impl SerdeImp<'_> {
-    fn serialize_imp(&self) -> proc_macro2::TokenStream {
+    fn serialize_imp(&self) -> TokenStream {
         let data = &self.data;
         let original_name = &self.original_ident;
         let original_name_quoted = self.original_ident.to_string();
@@ -49,7 +48,7 @@ impl SerdeImp<'_> {
         }
     }
 
-    fn deserialize_imp(&self) -> proc_macro2::TokenStream {
+    fn deserialize_imp(&self) -> TokenStream {
         let data = &self.data;
         let original_name = &self.original_ident;
         let original_name_quoted = self.original_ident.to_string();
@@ -74,7 +73,7 @@ impl SerdeImp<'_> {
 struct DeImplGenerics<'a>(&'a Generics);
 
 impl ToTokens for DeImplGenerics<'_> {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut generics = self.0.clone();
         generics.params = Some(syn::GenericParam::Lifetime(parse_quote!('de)))
             .into_iter()

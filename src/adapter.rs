@@ -13,6 +13,8 @@ use crate::{DeserializeMany, SerializeMany};
 /// ## Example
 ///
 /// ```
+/// # #[cfg(feature = "derive")]
+/// # {
 /// use serde_many::{AsSerde, DeserializeMany, SerializeMany};
 /// use serde::Serialize;
 ///
@@ -23,7 +25,6 @@ use crate::{DeserializeMany, SerializeMany};
 /// struct MyData {
 ///     value: i32,
 /// }
-///
 /// let my_data = MyData { value: 42 };
 /// let wrapped_data = AsSerde::<MyData, SpecialMarker>::new(my_data);
 ///
@@ -33,6 +34,7 @@ use crate::{DeserializeMany, SerializeMany};
 ///                     .unwrap()
 ///                     .into_inner();
 /// assert_eq!(my_data, deserialized)
+/// # }
 /// ```
 pub struct AsSerde<T, M> {
     data: T,

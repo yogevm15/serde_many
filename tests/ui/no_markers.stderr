@@ -1,0 +1,15 @@
+error: At least one marker is required (#[serde_many(... = "...")])
+ --> tests/ui/no_markers.rs:3:10
+  |
+3 | #[derive(SerializeMany, DeserializeMany)]
+  |          ^^^^^^^^^^^^^
+  |
+  = note: this error originates in the derive macro `SerializeMany` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: At least one marker is required (#[serde_many(... = "...")])
+ --> tests/ui/no_markers.rs:3:25
+  |
+3 | #[derive(SerializeMany, DeserializeMany)]
+  |                         ^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the derive macro `DeserializeMany` (in Nightly builds, run with -Z macro-backtrace for more info)

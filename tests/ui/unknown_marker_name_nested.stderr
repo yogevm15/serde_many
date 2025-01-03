@@ -1,0 +1,5 @@
+error: Unknown marker name, have you forgotten to add it to `#[serde_many(...)]`?
+ --> tests/ui/unknown_marker_name_nested.rs:7:31
+  |
+7 | #[serde(default(transparent), foo(aaaa))]
+  |                               ^^^

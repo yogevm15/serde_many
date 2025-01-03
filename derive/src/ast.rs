@@ -3,10 +3,12 @@ use crate::Derive;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use serde_derive_internals::Ctxt;
+use std::collections::HashMap;
+use syn::visit::Visit;
 use syn::visit_mut::visit_field_mut;
 use syn::{
-    parenthesized, parse_quote, visit_mut::VisitMut, Attribute, DeriveInput, Field, Ident, Path,
-    Result, Variant,
+    parenthesized, parse_quote, visit_mut::VisitMut, Attribute, DeriveInput, Error, Field, Ident,
+    Path, Result, Variant,
 };
 
 pub struct SerdeImp<'a> {
@@ -22,19 +24,22 @@ pub struct Input<'a> {
 
 impl<'a> Input<'a> {
     pub fn from_syn(i: &'a DeriveInput, derive: Derive) -> Result<Self> {
-        let ManyAttrs { many } = ManyAttrs::from_syn(&i.attrs)?;
-        Ok(Self {
-            data: many
-                .into_iter()
-                .map(|(name, marker)| SerdeImp::from_syn(name, marker, i, derive))
-                .collect::<Result<_>>()?,
-        })
+        let many = ManyAttrs::from_syn(&i.attrs)?.many;
+        let mut visitor = AttrValidateVisitor::new(&many);
+        visitor.visit_derive_input(i);
+        visitor.result()?;
+        let data = ManyAttrs::from_syn(&i.attrs)?
+            .many
+            .into_iter()
+            .map(|(name, marker)| SerdeImp::from_syn(name, marker, i, derive))
+            .collect::<Result<_>>()?;
+        Ok(Self { data })
     }
 }
 
 impl<'a> SerdeImp<'a> {
     fn from_syn(name: Ident, marker: Path, i: &'a DeriveInput, derive: Derive) -> Result<Self> {
-        let mut visitor = Visitor::new(name, derive, &marker);
+        let mut visitor = SerdeImpMutate::new(name, derive, &marker);
         let mut input = i.clone();
         visitor.visit_derive_input_mut(&mut input);
 
@@ -51,7 +56,7 @@ impl<'a> SerdeImp<'a> {
     }
 }
 
-struct Visitor<'a> {
+struct SerdeImpMutate<'a> {
     name: Ident,
     derive: Derive,
     marker: &'a Path,
@@ -60,7 +65,7 @@ struct Visitor<'a> {
     ctx: Ctxt,
 }
 
-impl<'a> Visitor<'a> {
+impl<'a> SerdeImpMutate<'a> {
     fn new(name: Ident, derive: Derive, marker: &'a Path) -> Self {
         Self {
             name,
@@ -88,7 +93,7 @@ impl<'a> Visitor<'a> {
     }
 }
 
-impl VisitMut for Visitor<'_> {
+impl VisitMut for SerdeImpMutate<'_> {
     fn visit_attributes_mut(&mut self, i: &mut Vec<Attribute>) {
         let mut attributes = vec![];
         for attr in i.iter() {
@@ -151,6 +156,48 @@ impl VisitMut for Visitor<'_> {
         self.visit_fields_mut(&mut i.fields);
         if let Some(it) = &mut i.discriminant {
             self.visit_expr_mut(&mut it.1);
+        }
+    }
+}
+
+struct AttrValidateVisitor<'a> {
+    ctx: Ctxt,
+    many: &'a HashMap<Ident, Path>,
+}
+
+impl<'a> AttrValidateVisitor<'a> {
+    fn new(many: &'a HashMap<Ident, Path>) -> Self {
+        Self {
+            many,
+            ctx: Ctxt::new(),
+        }
+    }
+
+    fn result(self) -> Result<()> {
+        self.ctx.check()
+    }
+}
+
+impl Visit<'_> for AttrValidateVisitor<'_> {
+    fn visit_attribute(&mut self, i: &Attribute) {
+        if !i.path().is_ident("serde") {
+            return;
+        }
+        let res = i.parse_nested_meta(|m| {
+            let content;
+            parenthesized!(content in m.input);
+            let _: TokenStream = content.parse()?;
+            if !self.many.contains_key(m.path.require_ident()?) {
+                return Err(Error::new_spanned(
+                    m.path,
+                    "Unknown marker name, have you forgotten to add it to `#[serde_many(...)]`?",
+                ));
+            }
+
+            Ok(())
+        });
+        if let Err(e) = res {
+            self.ctx.syn_error(e)
         }
     }
 }
