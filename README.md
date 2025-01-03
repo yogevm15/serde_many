@@ -1,4 +1,7 @@
-# Serde Many
+
+# Serde Many &emsp; [![Latest Version]][crates.io]
+[Latest Version]: https://img.shields.io/crates/v/serde_many.svg
+[crates.io]: https://crates.io/crates/serde_many
 
 Serde Many enables multiple serialization/deserialization implementations for the same type.
 The design ensures seamless integration with the [serde](https://crates.io/crates/serde) crate.
