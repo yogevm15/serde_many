@@ -9,6 +9,7 @@ struct Special;
 
 #[derive(SerializeMany, DeserializeMany)]
 #[serde_many(default = "Default", special = "Special")] // Declaring the implementation markers.
+#[serde(default(rename = "Test"))]
 struct Point {
     #[serde(special(rename = "x_value"))]
     x: i32,

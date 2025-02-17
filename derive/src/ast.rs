@@ -1,8 +1,7 @@
 use crate::attrs::ManyAttrs;
-use crate::Derive;
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::quote;
-use serde_derive_internals::Ctxt;
+use serde_derive_internals::{Ctxt, Derive};
 use std::collections::HashMap;
 use syn::visit::Visit;
 use syn::visit_mut::visit_field_mut;
@@ -11,19 +10,18 @@ use syn::{
     Path, Result, Variant,
 };
 
-pub struct SerdeImp<'a> {
+pub struct SerdeImp {
     pub marker: Path,
     pub derive: Derive,
-    pub original_ident: &'a Ident,
     pub data: DeriveInput,
 }
 
-pub struct Input<'a> {
-    pub data: Vec<SerdeImp<'a>>,
+pub struct Input {
+    pub data: Vec<SerdeImp>,
 }
 
-impl<'a> Input<'a> {
-    pub fn from_syn(i: &'a DeriveInput, derive: Derive) -> Result<Self> {
+impl Input {
+    pub fn from_syn(i: &DeriveInput, derive: Derive) -> Result<Self> {
         let many = ManyAttrs::from_syn(&i.attrs)?.many;
         let mut visitor = AttrValidateVisitor::new(&many);
         visitor.visit_derive_input(i);
@@ -37,20 +35,17 @@ impl<'a> Input<'a> {
     }
 }
 
-impl<'a> SerdeImp<'a> {
-    fn from_syn(name: Ident, marker: Path, i: &'a DeriveInput, derive: Derive) -> Result<Self> {
+impl SerdeImp {
+    fn from_syn(name: Ident, marker: Path, i: &DeriveInput, derive: Derive) -> Result<Self> {
         let mut visitor = SerdeImpMutate::new(name, derive, &marker);
         let mut input = i.clone();
         visitor.visit_derive_input_mut(&mut input);
 
         visitor.result()?;
 
-        input.ident = Ident::new("Duplicate", Span::call_site());
-
         Ok(Self {
             marker,
             derive,
-            original_ident: &i.ident,
             data: input,
         })
     }
@@ -133,15 +128,15 @@ impl VisitMut for SerdeImpMutate<'_> {
 
     fn visit_field_mut(&mut self, i: &mut Field) {
         visit_field_mut(self, i);
-        if serde_derive_internals::attr::Field::from_ast(
+        let field = serde_derive_internals::attr::Field::from_ast(
             &self.ctx,
             0,
             i,
             self.curr_variant_attrs.as_ref(),
             self.container_attrs.as_ref().unwrap().default(),
-        )
-        .serialize_with()
-        .is_none()
+        );
+        if (field.serialize_with().is_none() && matches!(self.derive, Derive::Serialize))
+            || (field.deserialize_with().is_none() && matches!(self.derive, Derive::Deserialize))
         {
             i.attrs.push(self.serde_with_attr())
         }
