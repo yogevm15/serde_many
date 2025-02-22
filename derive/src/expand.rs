@@ -6,12 +6,12 @@ use syn::{parse_quote, DeriveInput, Generics, Result};
 
 pub fn derive_serde(input: DeriveInput, derive: Derive) -> Result<TokenStream> {
     let original = &input.ident;
+    let (_, ty_generics, _) = input.generics.split_for_impl();
     let input = Input::from_syn(&input, derive)?;
     let imps = input.data;
-
     Ok(quote! {
         const _: () = {
-            type __Derived = #original;
+            type __Derived #ty_generics = #original #ty_generics;
             #(#imps)*
         };
     })
@@ -41,6 +41,7 @@ impl SerdeImp {
             const _: () = {
                 #[derive(::serde_many::__private::serde::Serialize)]
                 #[serde(remote = #original_name_quoted)]
+                #[serde(crate = "::serde_many::__private::serde")]
                 #data
                 
                 impl #impl_generics ::serde_many::SerializeMany<#marker> for #original_name #ty_generics #where_clause {
@@ -64,6 +65,7 @@ impl SerdeImp {
             const _: () = {
                 #[derive(::serde_many::__private::serde::Deserialize)]
                 #[serde(remote = #original_name_quoted)]
+                #[serde(crate = "::serde_many::__private::serde")]
                 #data
     
                 impl #impl_generics ::serde_many::DeserializeMany<'de, #marker> for #original_name #ty_generics #where_clause {

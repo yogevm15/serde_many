@@ -1,6 +1,6 @@
 [package]
 name = "serde_many_derive"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 categories = ["encoding", "no-std", "no-std::no-alloc"]
 keywords = ["serde", "serialization", "no_std", "derive"]
